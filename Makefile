@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
 # @Last modified by:   gastal_r
-# @Last modified time: 2017-11-22T18:37:37+01:00
+# @Last modified time: 2017-11-22T19:36:31+01:00
 
 
 ##
@@ -44,10 +44,9 @@ $(NAME)		:	$(OBJS)
 			$(CC) -o $(NAME) $(OBJS) $(LDFLAGS)
 
 clean		:
-			$(RM) $(OBJS)
-
-fclean		:       clean
 			$(RM) $(NAME)
+			$(RM) $(OBJS)
+			@make clean -C units/
 
 re		:       fclean all
 
@@ -66,5 +65,11 @@ check			:
 					@test -f $(PATH_INSTALL) && \
 							$(ECHO) $(GREEN) "MODULE IS INSTALLED" $(BLUE) $(NAME) \
 							|| $(ECHO) $(RED) "MODULE IS NOT INSTALLED" $(BLUE) $(NAME)
+
+test 			:
+					@$(ECHO) $(GREEN) "\nCOMPILE TEST" $(DEFAULT)
+					@make -C units/
+					@$(ECHO)  $(BLUE) "\nRUN TESTS" $(DEFAULT)
+					./units/units
 
 .PHONNY		:       all clean fclean re
