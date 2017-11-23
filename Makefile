@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
-# @Last modified by:   gastal_r
-# @Last modified time: 2017-11-23T21:37:46+01:00
+# @Last modified by:   prost_m
+# @Last modified time: 2017-11-23T22:25:36+01:00
 
 
 ##
@@ -37,7 +37,8 @@ PATH_INSTALL 	=	/lib/x86_64-linux-gnu/security/mypam.so
 
 PATH_CONFIG = /etc/pam.d/common-account
 
-SRC		=	src/pam.c
+SRC		=	src/pam.c \
+				src/my_strcat.c
 
 OBJS		=	$(SRC:.c=.o)
 
