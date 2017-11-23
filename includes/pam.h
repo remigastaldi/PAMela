@@ -4,7 +4,7 @@
 * @Email:  matthias.porst@epitech.eu
 * @Filename: pam.h
  * @Last modified by:   prost_m
- * @Last modified time: 2017-11-23T21:53:15+01:00
+ * @Last modified time: 2017-11-23T23:39:05+01:00
 */
 
 #ifndef _PAM_H_
@@ -26,6 +26,7 @@
 
 #include <security/pam_appl.h>
 #include <security/pam_modules.h>
+#include <security/pam_ext.h>
 
 char  *my_strcat(char *dest, const char *src);
 
