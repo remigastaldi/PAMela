@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
-# @Last modified by:   prost_m
-# @Last modified time: 2017-11-23T22:25:36+01:00
+# @Last modified by:   gastal_r
+# @Last modified time: 2017-11-23T22:52:00+01:00
 
 
 ##
@@ -56,18 +56,20 @@ re		:       clean all
 
 
 install	:	$(NAME)
-					@if (grep -q "auth sufficient mypam.so" $(PATH_CONFIG) && grep -q "account sufficient mypam.so" $(PATH_CONFIG)); \
+					@if (grep -q "auth sufficient mypam.so" $(PATH_CONFIG)); \
 					then echo "CONFIG EXIST"; \
 					else \
 					 echo "auth sufficient mypam.so" >> $(PATH_CONFIG) \
-						&& echo "account sufficient mypam.so" >> $(PATH_CONFIG) ;\
+					 		&& echo "account sufficient mypam.so" >> $(PATH_CONFIG) \
+					 		&& echo "password sufficient mypam.so" >> $(PATH_CONFIG) \
+							&& echo "session sufficient mypam.so" >> $(PATH_CONFIG) ;\
 					fi; \
 					ld -x --shared -o $(PATH_INSTALL) $(OBJS) \
 							&& $(ECHO) $(GREEN) "INSTALLATION SUCCESSFULL" $(BLUE) $(NAME) $(DEFAULT)  || \
 								$(ECHO) $(RED) "INSTALLATION FAILED : are you root ?" $(BLUE) $(NAME) $(DEFAULT)
 
 uninstall	:
-					@sed -i "/\b\(auth sufficient mypam.so\|account sufficient mypam.so\)\b/d" $(PATH_CONFIG)
+					@sed -i "/\b\(auth sufficient mypam.so\|account sufficient mypam.so\|password sufficient mypam.so\|session sufficient mypam.so\)\b/d" $(PATH_CONFIG)
 					@rm $(PATH_INSTALL)	&& \
 							$(ECHO) $(GREEN) "DELETE SUCCESSFUL" $(BLUE) $(NAME) $(DEFAULT)  || \
 							$(ECHO) $(RED) "DELETE FAILED" $(BLUE) $(NAME) $(DEFAULT)
