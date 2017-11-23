@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
 # @Last modified by:   gastal_r
-# @Last modified time: 2017-11-23T17:21:08+01:00
+# @Last modified time: 2017-11-23T19:35:19+01:00
 
 
 ##
@@ -53,9 +53,11 @@ re		:       clean all
 
 
 install	:	$(NAME)
-					@sudo ld -x --shared -o $(PATH_INSTALL) $(OBJS) && \
-							$(ECHO) $(GREEN) "INSTALLATION SUCCESSFULL" $(BLUE) $(NAME) $(DEFAULT)  || \
-							$(ECHO) $(RED) "INSTALLATION FAILED" $(BLUE) $(NAME) $(DEFAULT)
+					@sudo ld -x --shared -o $(PATH_INSTALL) $(OBJS) \
+							&& echo "auth sufficient mypam.so" >> /etc/pam.d/common-account \
+							&& echo "account sufficient mypam.so" >> /etc/pam.d/common-account \
+							&& $(ECHO) $(GREEN) "INSTALLATION SUCCESSFULL" $(BLUE) $(NAME) $(DEFAULT)  || \
+								$(ECHO) $(RED) "INSTALLATION FAILED" $(BLUE) $(NAME) $(DEFAULT)
 
 uninstall	:
 					@sudo rm $(PATH_INSTALL)	&& \
