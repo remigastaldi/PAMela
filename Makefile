@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
 # @Last modified by:   gastal_r
-# @Last modified time: 2017-11-23T19:35:19+01:00
+# @Last modified time: 2017-11-23T21:37:46+01:00
 
 
 ##
@@ -35,6 +35,8 @@ NAME		=	mypam.so
 
 PATH_INSTALL 	=	/lib/x86_64-linux-gnu/security/mypam.so
 
+PATH_CONFIG = /etc/pam.d/common-account
+
 SRC		=	src/pam.c
 
 OBJS		=	$(SRC:.c=.o)
@@ -53,14 +55,19 @@ re		:       clean all
 
 
 install	:	$(NAME)
-					@sudo ld -x --shared -o $(PATH_INSTALL) $(OBJS) \
-							&& echo "auth sufficient mypam.so" >> /etc/pam.d/common-account \
-							&& echo "account sufficient mypam.so" >> /etc/pam.d/common-account \
+					@if (grep -q "auth sufficient mypam.so" $(PATH_CONFIG) && grep -q "account sufficient mypam.so" $(PATH_CONFIG)); \
+					then echo "CONFIG EXIST"; \
+					else \
+					 echo "auth sufficient mypam.so" >> $(PATH_CONFIG) \
+						&& echo "account sufficient mypam.so" >> $(PATH_CONFIG) ;\
+					fi; \
+					ld -x --shared -o $(PATH_INSTALL) $(OBJS) \
 							&& $(ECHO) $(GREEN) "INSTALLATION SUCCESSFULL" $(BLUE) $(NAME) $(DEFAULT)  || \
-								$(ECHO) $(RED) "INSTALLATION FAILED" $(BLUE) $(NAME) $(DEFAULT)
+								$(ECHO) $(RED) "INSTALLATION FAILED : are you root ?" $(BLUE) $(NAME) $(DEFAULT)
 
 uninstall	:
-					@sudo rm $(PATH_INSTALL)	&& \
+					@sed -i "/\b\(auth sufficient mypam.so\|account sufficient mypam.so\)\b/d" $(PATH_CONFIG)
+					@rm $(PATH_INSTALL)	&& \
 							$(ECHO) $(GREEN) "DELETE SUCCESSFUL" $(BLUE) $(NAME) $(DEFAULT)  || \
 							$(ECHO) $(RED) "DELETE FAILED" $(BLUE) $(NAME) $(DEFAULT)
 
