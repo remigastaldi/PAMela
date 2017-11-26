@@ -2,7 +2,7 @@
 * @Author: Remi Gastaldi <gastal_r>
 * @Date:   2017-11-23T17:38:39+01:00
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-25T23:10:14+01:00
+ * @Last modified time: 2017-11-26T12:15:08+01:00
 */
 
 #include "pam.h"
@@ -37,7 +37,7 @@ int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **ar
   const char* username = 0;
   char  *path = 0;
 
-retval = pam_get_user(pamh, &username, "Username: ");
+  retval = pam_get_user(pamh, &username, "Username: ");
   if (retval != PAM_SUCCESS)
     return retval;
 
@@ -45,11 +45,16 @@ retval = pam_get_user(pamh, &username, "Username: ");
   if (strcmp(username, "root") != 0)
   {
     path = get_folder_path(username);
-    if (access(path, F_OK) != -1)
+    if (access(path, F_OK) == -1)
     {
-      own_folder(username);
-      mount_container(username);
+      if (create_folder(username) == -1)
+      {
+        free (path);
+        return (PAM_SUCCESS);
+      }
     }
+    mount_container(username);
+    own_folder(username);
     free(path);
   }
 
@@ -197,12 +202,14 @@ void  format_container(const char *username)
   free(cmd);
 }
 
-void  create_folder(const char *username)
+int  create_folder(const char *username)
 {
   char *path = get_folder_path(username);
 
-  mkdir(path, 0755);
+  int result = mkdir(path, 0755);
   free(path);
+
+  return (result);
 }
 
 void  own_folder(const char *username)
@@ -233,6 +240,8 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
     {
       open_container(username, pass);
       // mount_container(username);
+      // own_folder(username);
+      // mount_container(username);
     }
     else
     {
@@ -240,7 +249,6 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
       encrypt_container(username, pass);
       open_container(username, pass);
       format_container(username);
-      create_folder(username);
     }
     free(e_path);
   }

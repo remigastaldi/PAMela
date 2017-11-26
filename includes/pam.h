@@ -4,7 +4,7 @@
 * @Email:  matthias.porst@epitech.eu
 * @Filename: pam.h
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-25T21:25:46+01:00
+ * @Last modified time: 2017-11-26T12:13:14+01:00
 */
 
 #ifndef _PAM_H_
@@ -32,7 +32,7 @@ char  *my_strcat(char *dest, const char *src);
 
 char  *get_folder_path(const char *username);
 void  mount_container(const char *username);
-void  create_folder(const char *username);
+int   create_folder(const char *username);
 void  own_folder(const char *username);
 
 #endif
