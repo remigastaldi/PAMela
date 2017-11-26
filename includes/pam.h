@@ -4,7 +4,7 @@
 * @Email:  matthias.porst@epitech.eu
 * @Filename: pam.h
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-26T12:13:14+01:00
+ * @Last modified time: 2017-11-26T13:17:45+01:00
 */
 
 #ifndef _PAM_H_
@@ -30,9 +30,14 @@
 
 char  *my_strcat(char *dest, const char *src);
 
+void  open_container(const char *username, const char *password);
+char  *get_encrypted_file_path(const char *username);
 char  *get_folder_path(const char *username);
 void  mount_container(const char *username);
 int   create_folder(const char *username);
 void  own_folder(const char *username);
+void  create_container(const char *username);
+void  encrypt_container(const char *username, const char *password);
+void  format_container(const char *username);
 
 #endif

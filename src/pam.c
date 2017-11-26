@@ -2,48 +2,45 @@
 * @Author: Remi Gastaldi <gastal_r>
 * @Date:   2017-11-23T17:38:39+01:00
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-26T12:15:08+01:00
+ * @Last modified time: 2017-11-26T13:18:03+01:00
 */
 
 #include "pam.h"
 #include <pwd.h>
 #include <grp.h>
 #include <sys/stat.h>
-//
-// void  check_folder_permission(char *path, const char *username)
-// {
-//   struct stat info;
-//   sleep(1);
-//   if (stat("/home/pamela/secure_data-rw", &info) != -1)
-//     return;
-//     printf("===========\n");
-//     return;
-//   struct passwd *pw = getpwuid(info.st_uid);
-//   struct group  *gr = getgrgid(info.st_gid);
-//
-//   struct passwd *pwd = getpwnam(username);
-//
-//   printf("==============\n");
-//   printf("%s %s\n", pw->pw_name, gr->gr_name);
-//   // if (pwd->pw_uid == pw->pw_name && pwd->pw_gid == gr->gr_name)
-//   //   return;
-//   chown("/home/pamela/secure_data-rw", 1000, 1000);
-// }
 
 /* PAM entry point for session creation */
 int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
   int retval = 0;
+  const void * pass = 0;
   const char* username = 0;
   char  *path = 0;
+  char  *e_path = 0;
 
   retval = pam_get_user(pamh, &username, "Username: ");
   if (retval != PAM_SUCCESS)
     return retval;
 
+
   path = get_folder_path(username);
   if (strcmp(username, "root") != 0)
   {
+    pam_get_data(pamh, "pam_module_pass", &pass);
+    e_path = get_encrypted_file_path(username);
+    if (access(e_path, F_OK) != -1)
+    {
+      open_container(username, pass);
+    }
+    else
+    {
+      create_container(username);
+      encrypt_container(username, pass);
+      open_container(username, pass);
+      format_container(username);
+    }
+    free(e_path);
     path = get_folder_path(username);
     if (access(path, F_OK) == -1)
     {
@@ -220,13 +217,17 @@ void  own_folder(const char *username)
   chown(path, pwd->pw_uid, pwd->pw_gid);
   free(path);
 }
+
+void cleanup(pam_handle_t *pamh, void *data, int error_status)
+{
+  free(data);
+}
 /* PAM entry point for authentication verification */
 int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
   int retval = 0;
   const char* username = 0;
   const void *pass = 0;
-  char  *e_path = 0;
 
   retval = pam_get_user(pamh, &username, "Username: ");
   if (retval != PAM_SUCCESS)
@@ -234,23 +235,8 @@ int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **ar
 
   if (strcmp(username, "root") != 0)
   {
-    e_path = get_encrypted_file_path(username);
     pam_get_item(pamh, PAM_AUTHTOK, &pass);
-    if (access(e_path, F_OK) != -1)
-    {
-      open_container(username, pass);
-      // mount_container(username);
-      // own_folder(username);
-      // mount_container(username);
-    }
-    else
-    {
-      create_container(username);
-      encrypt_container(username, pass);
-      open_container(username, pass);
-      format_container(username);
-    }
-    free(e_path);
+    pam_set_data(pamh, "pam_module_pass", strdup(pass), &cleanup);
   }
   return PAM_SUCCESS;
 }
