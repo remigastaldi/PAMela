@@ -2,7 +2,7 @@
 * @Author: Remi Gastaldi <gastal_r>
 * @Date:   2017-11-23T17:38:39+01:00
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-26T13:18:03+01:00
+ * @Last modified time: 2017-11-26T16:04:53+01:00
 */
 
 #include "pam.h"
@@ -13,6 +13,9 @@
 /* PAM entry point for session creation */
 int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+  (void) flags;
+  (void) argc;
+  (void) argv;
   int retval = 0;
   const void * pass = 0;
   const char* username = 0;
@@ -52,39 +55,20 @@ int pam_sm_open_session(pam_handle_t *pamh, int flags, int argc, const char **ar
     }
     mount_container(username);
     own_folder(username);
+    free((char*)pass);
     free(path);
   }
 
   return(PAM_SUCCESS);
 }
 
-void  umount_container(const char *username)
-{
-  char *cmd = 0;
-  char *path = get_folder_path(username);
-
-  size_t needed = snprintf(NULL, 0, "umount %s", path) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "umount %s", path);
-  system(cmd);
-  free(cmd);
-  free(path);
-}
-
-void  close_container(const char *username)
-{
-  char *cmd = 0;
-
-  size_t needed = snprintf(NULL, 0, "cryptsetup luksClose %s_secure_data", username) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "cryptsetup luksClose %s_secure_data", username);
-  system(cmd);
-  free(cmd);
-}
-
 /* PAM entry point for session cleanup */
 int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+  (void) flags;
+  (void) argc;
+  (void) argv;
+
   int retval;
   const char* username;
   char *path = NULL;
@@ -106,125 +90,29 @@ int pam_sm_close_session(pam_handle_t *pamh, int flags, int argc, const char **a
 /* PAM entry point for accounting */
 int pam_sm_acct_mgmt(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+  (void) pamh;
+  (void) flags;
+  (void) argc;
+  (void) argv;
+
   return(PAM_IGNORE);
-}
-
-char  *get_folder_path(const char *username)
-{
-  char  *path = 0;
-
-  size_t needed = snprintf(NULL, 0, "/home/%s/secure_data-rw", username) + 1;
-  path = malloc(needed);
-  snprintf(path, needed, "/home/%s/secure_data-rw", username);
-
-  return (path);
-}
-
-char  *get_encrypted_file_path(const char *username)
-{
-  char  *path = 0;
-
-  size_t needed = snprintf(NULL, 0, "/home/%s/secure_data-rw.encrypted", username) + 1;
-  path = malloc(needed);
-  snprintf(path, needed, "/home/%s/secure_data-rw.encrypted", username);
-
-  return (path);
-}
-
-void open_container(const char *username, const char *password)
-{
-  size_t needed = 0;
-  char  *cmd = 0;
-  char *path = get_encrypted_file_path(username);
-
-  needed = snprintf(NULL, 0, "echo -e \"%s\" | cryptsetup luksOpen %s %s_secure_data",
-                    password, path, username) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "echo -e \"%s\" | cryptsetup luksOpen %s %s_secure_data",
-                    password, path, username);
-  printf("open=%s\n", cmd);
-  system(cmd);
-  free(cmd);
-  free(path);
-}
-
-void  mount_container(const char *username)
-{
-  char *cmd = 0;
-  char  *path = get_folder_path(username);
-
-  size_t needed = snprintf(NULL, 0, "mount /dev/mapper/%s_secure_data %s", username, path) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "mount /dev/mapper/%s_secure_data %s", username, path);
-  system(cmd);
-  free(cmd);
-  free(path);
-}
-
-void create_container(const char *username)
-{
-  char *cmd = 0;
-  char *path = get_encrypted_file_path(username);
-
-  size_t needed = snprintf(NULL, 0, "%s%s", "dd if=/dev/zero bs=1M count=500 of=", path) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "%s%s", "dd if=/dev/zero bs=1M count=500 of=", path);
-  system(cmd);
-  free(cmd);
-  free(path);
-}
-
-void  encrypt_container(const char *username, const char *password)
-{
-  char *cmd = 0;
-  char *path = get_encrypted_file_path(username);
-
-  size_t needed = snprintf(NULL, 0, "echo -e \"%s\" | cryptsetup luksFormat %s", password, path) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "echo -e \"%s\" | cryptsetup luksFormat %s", password, path);
-  printf("format=%s\n", cmd);
-  system(cmd);
-  free(cmd);
-  free(path);
-}
-
-void  format_container(const char *username)
-{
-  char *cmd = 0;
-
-  size_t needed = snprintf(NULL, 0, "mkfs.ext4 /dev/mapper/%s_secure_data", username) + 1;
-  cmd = malloc(needed);
-  snprintf(cmd, needed, "mkfs.ext4 /dev/mapper/%s_secure_data", username);
-  system(cmd);
-  free(cmd);
-}
-
-int  create_folder(const char *username)
-{
-  char *path = get_folder_path(username);
-
-  int result = mkdir(path, 0755);
-  free(path);
-
-  return (result);
-}
-
-void  own_folder(const char *username)
-{
-  char *path = get_folder_path(username);
-  struct passwd *pwd = getpwnam(username);
-
-  chown(path, pwd->pw_uid, pwd->pw_gid);
-  free(path);
 }
 
 void cleanup(pam_handle_t *pamh, void *data, int error_status)
 {
+  (void) pamh;
+  (void) data;
+  (void) error_status;
   free(data);
 }
+
 /* PAM entry point for authentication verification */
 int pam_sm_authenticate(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+  (void) flags;
+  (void) argc;
+  (void) argv;
+
   int retval = 0;
   const char* username = 0;
   const void *pass = 0;
@@ -247,12 +135,20 @@ establish the authenticated user's credentials to the service provider)
 */
 int pam_sm_setcred(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+  (void) pamh;
+  (void) flags;
+  (void) argc;
+  (void) argv;
+
   return(PAM_IGNORE);
 }
 
 /* PAM entry point for authentication token (password) changes */
 int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
 {
+  (void) argc;
+  (void) argv;
+
   const void *pass;
   char *path;
   const char* username = 0;
@@ -269,6 +165,8 @@ int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
   else
     return PAM_SUCCESS;
 
+  system("cryptsetup -y luksAddKey /home/pamela/secure_data-rw.encrypted");
+  return PAM_SUCCESS;
   umount_container(username);
   close_container(username);
 

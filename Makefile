@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
 # @Last modified by:   gastal_r
-# @Last modified time: 2017-11-23T23:46:19+01:00
+# @Last modified time: 2017-11-26T15:59:05+01:00
 
 
 ##
@@ -41,7 +41,8 @@ PATH_CONFIG_PASSWORD = /etc/pam.d/common-password
 PATH_CONFIG_SESSION = /etc/pam.d/common-session
 
 SRC		=	src/pam.c \
-				src/my_strcat.c
+				src/container.c \
+				src/folder.c
 
 OBJS		=	$(SRC:.c=.o)
 
