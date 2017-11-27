@@ -2,7 +2,7 @@
  * @Author: Remi Gastaldi <gastal_r>
  * @Date:   2017-11-26T15:39:13+01:00
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-26T15:56:31+01:00
+ * @Last modified time: 2017-11-27T16:46:06+01:00
  */
 
 
@@ -50,10 +50,10 @@ void open_container(const char *username, const char *password)
   char  *cmd = 0;
   char *path = get_encrypted_file_path(username);
 
-  needed = snprintf(NULL, 0, "echo -e \"%s\" | cryptsetup luksOpen %s %s_secure_data",
+  needed = snprintf(NULL, 0, "printf \"%s\" | cryptsetup luksOpen %s %s_secure_data",
                     password, path, username) + 1;
   cmd = malloc(needed);
-  snprintf(cmd, needed, "echo -e \"%s\" | cryptsetup luksOpen %s %s_secure_data",
+  snprintf(cmd, needed, "printf \"%s\" | cryptsetup luksOpen %s %s_secure_data",
                     password, path, username);
   printf("open=%s\n", cmd);
   system(cmd);
@@ -79,9 +79,9 @@ void create_container(const char *username)
   char *cmd = 0;
   char *path = get_encrypted_file_path(username);
 
-  size_t needed = snprintf(NULL, 0, "%s%s", "dd if=/dev/zero bs=1M count=500 of=", path) + 1;
+  size_t needed = snprintf(NULL, 0, "dd if=/dev/zero bs=1M count=500 of=%s", path) + 1;
   cmd = malloc(needed);
-  snprintf(cmd, needed, "%s%s", "dd if=/dev/zero bs=1M count=500 of=", path);
+  snprintf(cmd, needed, "dd if=/dev/zero bs=1M count=500 of=%s", path);
   system(cmd);
   free(cmd);
   free(path);
@@ -92,9 +92,9 @@ void  encrypt_container(const char *username, const char *password)
   char *cmd = 0;
   char *path = get_encrypted_file_path(username);
 
-  size_t needed = snprintf(NULL, 0, "echo -e \"%s\" | cryptsetup luksFormat %s", password, path) + 1;
+  size_t needed = snprintf(NULL, 0, "printf \"%s\" | cryptsetup luksFormat %s", password, path) + 1;
   cmd = malloc(needed);
-  snprintf(cmd, needed, "echo -e \"%s\" | cryptsetup luksFormat %s", password, path);
+  snprintf(cmd, needed, "printf \"%s\" | cryptsetup luksFormat %s", password, path);
   printf("format=%s\n", cmd);
   system(cmd);
   free(cmd);

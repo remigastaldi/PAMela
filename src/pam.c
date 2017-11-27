@@ -2,7 +2,7 @@
 * @Author: Remi Gastaldi <gastal_r>
 * @Date:   2017-11-23T17:38:39+01:00
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-26T16:04:53+01:00
+ * @Last modified time: 2017-11-27T16:47:29+01:00
 */
 
 #include "pam.h"
@@ -149,35 +149,28 @@ int pam_sm_chauthtok(pam_handle_t *pamh, int flags, int argc, const char **argv)
   (void) argc;
   (void) argv;
 
-  const void *pass;
-  char *path;
-  const char* username = 0;
+  int			ret;
+  const char 	*username;
+  const char 	*password;
+  const char 	*oldPassword;
+  char *cmd;
 
-  int retval = pam_get_user(pamh, &username, "Username: ");
-  if (retval != PAM_SUCCESS)
-    return retval;
 
-  pam_get_item(pamh, PAM_AUTHTOK, &pass);
-  if (flags == PAM_UPDATE_AUTHTOK)
+  if (flags != PAM_UPDATE_AUTHTOK)
   {
-    printf("PASSWORD: %s\n", (char *)pass);
+    return (PAM_SUCCESS);
   }
-  else
-    return PAM_SUCCESS;
-
-  system("cryptsetup -y luksAddKey /home/pamela/secure_data-rw.encrypted");
-  return PAM_SUCCESS;
-  umount_container(username);
-  close_container(username);
-
-  path = get_encrypted_file_path(username);
-  remove(path);
-
-  create_container(username);
-  encrypt_container(username, pass);
-  open_container(username, pass);
-  format_container(username);
-
-  free(path);
-  return PAM_SUCCESS;
+  if ((ret = pam_get_user(pamh, &username, "Username: ")) != PAM_SUCCESS)
+      return (ret);
+  else if ((ret = pam_get_item(pamh, PAM_AUTHTOK, (const void **)&password)) != PAM_SUCCESS)
+      return (ret);
+  if (password)
+  {
+   	if ((ret = pam_get_item(pamh, PAM_OLDAUTHTOK, (const void **)&oldPassword)) != PAM_SUCCESS)
+   	  return (ret);
+    asprintf(&cmd, "printf \"%s\n%s\n%s\n\" | cryptsetup luksAddKey /home/pamela/secure_data-rw.encrypted &", oldPassword, password, password);
+    printf("addkey=%s\n", cmd);
+    system(cmd);
+  }
+ return PAM_SUCCESS;
 }

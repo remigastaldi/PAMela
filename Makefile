@@ -1,7 +1,7 @@
 # @Author: Remi Gastaldi <gastal_r>
 # @Date:   2017-11-22T17:40:25+01:00
 # @Last modified by:   gastal_r
-# @Last modified time: 2017-11-26T15:59:05+01:00
+# @Last modified time: 2017-11-26T21:13:50+01:00
 
 
 ##
@@ -22,12 +22,12 @@ RED		=	"\033[0;31m"
 YELLOW		=	"\033[1;33m"
 BLUE		= 	"\033[1;34m"
 
-CC		=       gcc
+CC		=       gcc -D_GNU_SOURCE
 
 RM		=       rm -rf
 
 CFLAGS		+=	-Wall -Wextra -W #-Werror
-CFLAGS		+=	-fPIC -c -lcrypt -fno-stack-protector
+CFLAGS		+=	-fPIC -c -lcryptsetup -fno-stack-protector
 CFLAGS		+=	-I./includes
 LDFLAGS		+= -shared
 

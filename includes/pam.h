@@ -4,7 +4,7 @@
 * @Email:  matthias.porst@epitech.eu
 * @Filename: pam.h
  * @Last modified by:   gastal_r
- * @Last modified time: 2017-11-26T16:00:03+01:00
+ * @Last modified time: 2017-11-26T21:04:55+01:00
 */
 
 #ifndef _PAM_H_
@@ -29,6 +29,8 @@
 #include <security/pam_ext.h>
 
 char  *my_strcat(char *dest, const char *src);
+
+void  cleanup(pam_handle_t *pamh, void *data, int error_status);
 
 void  umount_container(const char *username);
 void  mount_container(const char *username);
