@@ -9,3 +9,17 @@ user’s encrypted containers.
 • Each user have his own container in his home.  
 • When a user logs on, it's open his container (decrypt). When the user logs
 out, his container is closed.  
+
+## Usage:
+### Install module:
+```bash
+sudo make install
+```
+### Uninstall module:
+```bash
+sudo make uninstall
+```
+### Check if module is present:
+```bash
+sudo make check
+```
